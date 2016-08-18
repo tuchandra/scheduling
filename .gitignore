@@ -1,3 +1,6 @@
+# Folder of employee prefs
+prefs/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
