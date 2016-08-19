@@ -5,7 +5,7 @@ Tools to help build a schedule for student employees at Northwestern IT.
 
 ## Getting Started (for future schedulers)
 ### Pulling data from WhenToWork
-Go to WhenToWork, and log in with the `lc2` account. In the top menu, `Schedules`, click `Availability / Coverage View`. Make sure to navigate to a week where everyone will have their prefs active (i.e., the first full week of the quarter). Click on the `Mon` tab, and open the page source. Around line 800 or so (as of August 2016), you should see employees' names, position names, and some numbers enclosed in `<script>` tags. 
+Go to WhenToWork, and log in with the `lc2` account. In the top menu, `Schedules`, click `Availability / Coverage View`. Make sure to navigate to a week where everyone will have their prefs active (i.e., the first full week of the quarter). In the top right, select `TSC Hours` for `Display Time`. Click on the `Mon` tab, and open the page source. Around line 800 or so (as of August 2016), you should see employees' names, position names, and some numbers enclosed in `<script>` tags. 
 
 Look for something in this format:
 
