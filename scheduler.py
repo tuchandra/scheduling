@@ -204,12 +204,12 @@ def read_prefs_string(pstring):
         if pstring[i : i+6] == 'PPPPPP':
             time1 = convert_time(time)
             time2 = convert_time(time + 1.5)
-            print('Prefers to work: {0} - {1}'.format(time1, time2))
+            print("Prefers to work: {0} - {1}".format(time1, time2))
 
         elif "D" not in pstring[i : i+6] and "C" not in pstring[i : i+6]:
             time1 = convert_time(time)
             time2 = convert_time(time + 1.5)
-            print('Can work: {0} - {1}'.format(time1, time2))
+            print("Can work: {0} - {1}".format(time1, time2))
 
         time += 0.5
 
@@ -217,19 +217,19 @@ def read_prefs_string(pstring):
 
 
 def when_employee_available(day, name):
-    """ Prints availability of a given employee 'name' on 'day'.
+    """ Prints availability of a given employee 'name' on 'day'. """
 
-    ...
-    """
+    employees = get_day_prefs(day)
 
-    ...
+    for empl in employees:
+        if empl.name == name:
+            print(name)
+            read_prefs_string(empl.prefs)
+            print()
 
 
 def all_available(day):
-    """ Prints availability of all employees on 'day'.
-
-    ...
-    """
+    """ Prints availability of all employees on 'day'. """
 
     ...
 
