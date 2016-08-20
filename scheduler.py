@@ -153,6 +153,69 @@ def get_day_prefs(day):
     return empls
 
 
+def convert_time(time):
+    """ Takes HH.MM (24 hours) as decimal, converts to HH:MM (12 hours).
+
+    >>> convert_time(13.50)
+    '1:30'
+
+    >>> convert_time(8.75)
+    '8:45'
+    """
+
+    time = str(time).split(".")
+
+    # Get hour, convert to 12-hour format
+    temp_hr = int(time[0]) - 1
+    hpart = str(temp_hr % 12 + 1)
+
+    # Get minutes, convert from decimal
+    minutes = {0: "00", 15: "15", 3: "30", 45: "45"}
+    mpart = minutes[int(0.60 * float(time[1]))]
+
+    return "{0}:{1}".format(hpart, mpart)
+
+
+def read_prefs_string(pstring):
+    """ Read an employee prefs string to print their availability.
+
+    This looks for periods of 1.5 hours (minimum shift length) where an
+    employee prefers or has no preference working, ignoring times they dislike
+    or cannot work. The results are printed out.
+
+    Shifts also start on the half hour, so this iterates through the string
+    in increments of two 15-minute elements.
+
+    While the minimum shift length defaults to 1.5 hours (6 chars), but
+    this can be changed if it is necessary to fill a longer shift.
+    """
+
+    time = 8.00
+
+    for i, char in enumerate(pstring):
+        # Iterate by two characters, so skip odd indices
+        if i % 2 == 1:
+            continue
+
+        # When we reach 6 chars from the end of the string, break
+        if i + 6 > len(pstring):
+            break
+
+        if pstring[i : i+6] == 'PPPPPP':
+            time1 = convert_time(time)
+            time2 = convert_time(time + 1.5)
+            print('Prefers to work: {0} - {1}'.format(time1, time2))
+
+        elif "D" not in pstring[i : i+6] and "C" not in pstring[i : i+6]:
+            time1 = convert_time(time)
+            time2 = convert_time(time + 1.5)
+            print('Can work: {0} - {1}'.format(time1, time2))
+
+        time += 0.5
+
+    return 
+
+
 def when_employee_available(day, name):
     """ Prints availability of a given employee 'name' on 'day'.
 

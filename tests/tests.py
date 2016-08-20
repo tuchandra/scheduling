@@ -1,7 +1,9 @@
 from .. import scheduler
 
 from collections import namedtuple
+from io import StringIO
 import unittest
+from unittest.mock import patch
 
 class TestPrefReader(unittest.TestCase):
     """ Tests for the functions to read preferences. """
@@ -47,8 +49,8 @@ class TestPrefReader(unittest.TestCase):
         Employee = namedtuple("Employee", ["name", "prefs"])
 
         actual_prefs = scheduler.get_day_prefs("tests/test_prefs")
-        expected = [Employee('Some Employee', 'XXXXXXXXXXXXDDDDDDDDPPPPPPCCCCCCCCCCCCCCCCXXXXXXXXXX'),
-                    Employee('Test Student', 'XXXXXXCCCCCCCCCCCCCCCCCCCCXXPPPPPPPPPPPPPPPPXXXXXXXX')]
+        expected = [Employee('Some Employee', 'XXXXXXXXXXXXDDDDDDDDPPPPPPCCCCCCCCCCCCCCCCXXXXXX'),
+                    Employee('Test Student', 'XXXXXXCCCCCCCCCCCCCCCCXXPPPPPPPPPPPPPPPPXXXXXXXX')]
 
 
         assert actual_prefs == expected
@@ -58,6 +60,7 @@ class TestPrefReader(unittest.TestCase):
 
         assert 1
         #assert scheduler.get_day_prefs("tests/test_prefs") == 0
+
 
 class TestPrefsLineConversion(unittest.TestCase):
     """ Tests for the functions that convert prefs lines to strings. """
@@ -103,3 +106,105 @@ class TestPrefsLineConversion(unittest.TestCase):
         expected = 'XXXXCCCCCCCCCCCCCCPPCCCCCCCCCCCCCCCCCCCCCCCCCCXXXXXX'
 
         assert scheduler.prefs_line_to_string(line) == expected
+
+
+class TestConvertTime(unittest.TestCase):
+    """ Tests for time conversion. """
+
+    def test_one(self):
+        """ Test one time conversion. """
+        assert scheduler.convert_time(8.00) == "8:00"
+
+    def test_two(self):
+        """ Test a second time conversion. """
+        assert scheduler.convert_time(8.50) == "8:30"
+
+    def test_three(self):
+        """ Test a third time conversion. """
+        assert scheduler.convert_time(12.50) == "12:30"
+
+    def test_four(self):
+        """ Test a fourth time conversion. """
+        assert scheduler.convert_time(13.00) == "1:00"
+
+    def test_five(self):
+        """ Test a fifth time conversion. """
+        assert scheduler.convert_time(14.25) == "2:15"
+
+
+class TestPrefsStringReader(unittest.TestCase):
+    """ Tests for the prefs string reader. """
+
+    def test_simple_prefers(self):
+        """ Test a 6-char prefers to work string. """
+        
+        pstring = 'PPPPPP'
+        expected = 'Prefers to work: 8:00 - 9:30'
+
+        with patch('sys.stdout', new=StringIO()) as test_output:
+            scheduler.read_prefs_string(pstring)
+            assert test_output.getvalue().strip() == expected
+
+    def test_simple_can_work(self):
+        """ Test a 6-char can work string. """
+        
+        pstring = 'XXXXXX'
+        expected = 'Can work: 8:00 - 9:30'
+
+        with patch('sys.stdout', new=StringIO()) as test_output:
+            scheduler.read_prefs_string(pstring)
+            assert test_output.getvalue().strip() == expected
+
+    def test_simple_both(self):
+        """ Test a 6-char mixed string. """
+
+        pstring = 'XXPPPP'
+        expected = 'Can work: 8:00 - 9:30'
+
+        with patch('sys.stdout', new=StringIO()) as test_output:
+            scheduler.read_prefs_string(pstring)
+            assert test_output.getvalue().strip() == expected
+
+    def test_dislikes(self):
+        """ Test a 6-char string including dislikes. """
+
+        pstring = 'XXDDPP'
+        expected = ''
+
+        with patch('sys.stdout', new=StringIO()) as test_output:
+            scheduler.read_prefs_string(pstring)
+            assert test_output.getvalue().strip() == expected
+
+    def test_longer(self):
+        """ Test a longer string. """
+
+        pstring = 'XXXXXXCCCCCCCCCCCCPPCCCCCCCCCCCCCCCCCCCCCCXXXXXX'
+        expected = 'Can work: 8:00 - 9:30\nCan work: 6:30 - 8:00'
+
+        with patch('sys.stdout', new=StringIO()) as test_output:
+            scheduler.read_prefs_string(pstring)
+            assert test_output.getvalue().strip() == expected
+
+    def test_using_file(self):
+        """ Test from the test_prefs file. """
+
+        employees = scheduler.get_day_prefs("tests/test_prefs")
+        
+        expected1 = 'Can work: 8:00 - 9:30\nCan work: 8:30 - 10:00\n' \
+                    'Can work: 9:00 - 10:30\nCan work: 9:30 - 11:00\n' \
+                    'Prefers to work: 1:00 - 2:30\nCan work: 6:30 - 8:00'
+
+        expected2 = 'Can work: 8:00 - 9:30\nCan work: 1:30 - 3:00\n' \
+                    'Prefers to work: 2:00 - 3:30\nPrefers to work: 2:30 - 4:00\n' \
+                    'Prefers to work: 3:00 - 4:30\nPrefers to work: 3:30 - 5:00\n' \
+                    'Prefers to work: 4:00 - 5:30\nPrefers to work: 4:30 - 6:00\n' \
+                    'Can work: 5:00 - 6:30\nCan work: 5:30 - 7:00\n' \
+                    'Can work: 6:00 - 7:30\nCan work: 6:30 - 8:00'
+
+        with patch('sys.stdout', new=StringIO()) as test_output:
+            scheduler.read_prefs_string(employees[0].prefs)
+            assert test_output.getvalue().strip() == expected1
+
+        with patch('sys.stdout', new=StringIO()) as test_output:
+            scheduler.read_prefs_string(employees[1].prefs)
+            assert test_output.getvalue().strip() == expected2
