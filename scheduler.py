@@ -51,11 +51,25 @@ Detailed explanation of options:
     week.
 
     These four usage patterns are listed above in "Usage."
+
+Configuring employees to ignore:
+    If there are employees you do not wish to include in the output of this
+    script for some reason (e.g., they have no prefs and you don't need to see
+    their name everywhere), then create a new file in this directory called
+    ignore.py, with a list EMPLS_TO_IGNORE of the names to ignore.
+
+    e.g., EMPLS_TO_IGNORE = ["Tushar Chandra", "Another Person"]
+
+    This is included in .gitignore so that it remains private. 
 """
 
 from collections import namedtuple
 from docopt import docopt
 
+try:
+    from ignore import EMPLS_TO_IGNORE
+except ImportError:
+    EMPLS_TO_IGNORE = []
 
 def read_prefs_file(day):
     """ Reads the prefs file for 'day' and returns the line-by-line text. """
@@ -233,6 +247,11 @@ def get_day_prefs(day):
     # tuples directly.
     Employee = namedtuple("Employee", ["name", "prefs"])
     for i, empl in enumerate(empls):
+        # Ignore certain employees by setting their prefs to never working
+        if empl.name in EMPLS_TO_IGNORE:
+            empls[i] = Employee(empl.name, 'C' * 48)
+            continue
+        
         empls[i] = Employee(empl.name, prefs_line_to_string(empl.prefs))
 
     return empls
