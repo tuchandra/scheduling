@@ -1,6 +1,9 @@
 # Folder of employee prefs
 prefs/
 
+# Employees to ignore
+ignore.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
