@@ -5,7 +5,7 @@ from io import StringIO
 import unittest
 from unittest.mock import patch
 
-class TestPrefReader(unittest.TestCase):
+class TestPrefsReader(unittest.TestCase):
     """ Tests for the functions to read preferences. """
 
     def test_combine_lines(self):
@@ -57,80 +57,100 @@ class TestPrefReader(unittest.TestCase):
 
 
 class TestPrefsLineConversion(unittest.TestCase):
-    """ Tests for the functions that convert prefs lines to strings. """
+    """ Tests the conversion function prefs_line_to_string(). """
 
-    def test_simple_uncolored_conversion(self):
-        """ Test a conversion from one tb(..) piece. """
+    def test_prefs_conversion_simple_uncolored(self):
+        """ Test prefs_line_to_string() from one tb(..) piece. """
         line = 'tb(0,4);'
         expected = 'XXXX'
 
         assert scheduler.prefs_line_to_string(line) == expected
 
-    def test_simple_green_conversion(self):
-        """ Test a conversion for a green tc(..) piece. """
+    def test_prefs_conversion_simple_green(self):
+        """ Test prefs_line_to_string() for a green tc(..) piece. """
         line = 'tc(4,8,"1");'
         expected = 'PPPPPPPP'
 
         assert scheduler.prefs_line_to_string(line) == expected
 
-    def test_simple_pink_conversion(self):
-        """ Test a conversion for a pink tc(..) piece. """
+    def test_prefs_conversion_simple_pink(self):
+        """ Test prefs_line_to_string() for a pink tc(..) piece. """
         line = 'tc(4,6,"2");'
         expected = 'DDDDDD'
 
         assert scheduler.prefs_line_to_string(line) == expected
 
-    def test_simple_red_conversion(self):
-        """ Test a conversion for a red tc(..) piece. """
+    def test_prefs_conversion_simple_red(self):
+        """ Test prefs_line_to_string() for a red tc(..) piece. """
         line = 'tc(4,4,"3");'
         expected = 'CCCC'
 
         assert scheduler.prefs_line_to_string(line) == expected
 
-    def test_double_conversion(self):
-        """ Test a conversion with two pieces. """
+    def test_prefs_conversion_double(self):
+        """ Test prefs_line_to_string() with two pieces. """
         line = 'tc(2,4,"1");tb(0,8);'
         expected = 'PPPPXXXXXXXX'
 
         assert scheduler.prefs_line_to_string(line) == expected
 
-    def test_multiple_conversion(self):
-        """ Test a conversion with multiple pieces. """
+    def test_prefs_conversion_multiple(self):
+        """ Test prefs_line_to_string() with multiple pieces. """
         line = 'tb(0,4);tc(0,14,"3");tc(2,2,"1");tc(0,26,"3");tb(2,6);etr();'
         expected = 'XXXXCCCCCCCCCCCCCCPPCCCCCCCCCCCCCCCCCCCCCCCCCCXXXXXX'
 
         assert scheduler.prefs_line_to_string(line) == expected
 
 
-class TestConvertTime(unittest.TestCase):
+class TestTimeConversions(unittest.TestCase):
     """ Tests for time conversion. """
 
-    def test_one(self):
-        """ Test time conversion #1. """
-        assert scheduler.convert_time(8.00) == "8:00"
+    def test_decimal_to_time_one(self):
+        """ Test decimal_to_time() conversion #1. """
+        assert scheduler.decimal_to_time(8.00) == "8:00"
 
-    def test_two(self):
-        """ Test time conversion #2. """
-        assert scheduler.convert_time(8.50) == "8:30"
+    def test_decimal_to_time_two(self):
+        """ Test decimal_to_time() conversion #2. """
+        assert scheduler.decimal_to_time(8.50) == "8:30"
 
-    def test_three(self):
-        """ Test time conversion #3. """
-        assert scheduler.convert_time(12.50) == "12:30"
+    def test_decimal_to_time_three(self):
+        """ Test decimal_to_time() conversion #3. """
+        assert scheduler.decimal_to_time(12.50) == "12:30"
 
-    def test_four(self):
-        """ Test time conversion #4. """
-        assert scheduler.convert_time(13.00) == "1:00"
+    def test_decimal_to_time_four(self):
+        """ Test decimal_to_time() conversion #4. """
+        assert scheduler.decimal_to_time(13.00) == "1:00"
 
-    def test_five(self):
-        """ Test time conversion #5. """
-        assert scheduler.convert_time(14.25) == "2:15"
+    def test_decimal_to_time_five(self):
+        """ Test decimal_to_time() conversion #5. """
+        assert scheduler.decimal_to_time(14.25) == "2:15"
+
+    def test_time_to_decimal_one(self):
+        """ Test time_to_decimal() conversion #1. """
+        assert scheduler.time_to_decimal('8:30') == 8.5
+
+    def test_time_to_decimal_two(self):
+        """ Test time_to_decimal() conversion #2. """
+        assert scheduler.time_to_decimal('1:30') == 13.5
+
+    def test_time_to_decimal_three(self):
+        """ Test time_to_decimal() conversion #3. """
+        assert scheduler.time_to_decimal('12:00') == 12
+
+    def test_time_to_decimal_four(self):
+        """ Test time_to_decimal() conversion #4. """
+        assert scheduler.time_to_decimal('4:30') == 16.5
+
+    def test_time_to_decimal_five(self):
+        """ Test time_to_decimal() conversion #5. """
+        assert scheduler.time_to_decimal('1:00') == 13
 
 
-class TestPrefsStringReader(unittest.TestCase):
-    """ Tests for the prefs string reader. """
+class TestReadPrefsString(unittest.TestCase):
+    """ Tests for read_prefs_string(), the prefs string reader. """
 
-    def test_simple_prefers(self):
-        """ Test get_day_prefs() with a 6-char prefers to work string. """
+    def test_read_prefs_string_simple_prefers(self):
+        """ Test read_prefs_string() with a 6-char prefers to work string. """
         
         pstring = 'PPPPPP'
         expected = 'Prefers to work: 8:00 - 9:30'
@@ -139,8 +159,8 @@ class TestPrefsStringReader(unittest.TestCase):
             scheduler.read_prefs_string(pstring)
             assert test_output.getvalue().strip() == expected
 
-    def test_simple_can_work(self):
-        """ Test get_day_prefs() with a 6-char can work string. """
+    def test_read_prefs_string_simple_can_work(self):
+        """ Test read_prefs_string() with a 6-char can work string. """
         
         pstring = 'XXXXXX'
         expected = 'Can work: 8:00 - 9:30'
@@ -149,8 +169,8 @@ class TestPrefsStringReader(unittest.TestCase):
             scheduler.read_prefs_string(pstring)
             assert test_output.getvalue().strip() == expected
 
-    def test_simple_both(self):
-        """ Test get_day_prefs() with a 6-char mixed string. """
+    def test_read_prefs_string_simple_mixed(self):
+        """ Test read_prefs_string() with a 6-char mixed string. """
 
         pstring = 'XXPPPP'
         expected = 'Can work: 8:00 - 9:30'
@@ -159,8 +179,8 @@ class TestPrefsStringReader(unittest.TestCase):
             scheduler.read_prefs_string(pstring)
             assert test_output.getvalue().strip() == expected
 
-    def test_dislikes(self):
-        """ Test get_day_prefs() with a 6-char string including dislikes. """
+    def test_read_prefs_string_dislikes(self):
+        """ Test read_prefs_string() with a 6-char string including dislikes. """
 
         pstring = 'XXDDPP'
         expected = ''
@@ -169,18 +189,19 @@ class TestPrefsStringReader(unittest.TestCase):
             scheduler.read_prefs_string(pstring)
             assert test_output.getvalue().strip() == expected
 
-    def test_longer(self):
-        """ Test get_day_prefs() with a longer string. """
+    def test_read_prefs_string_longer(self):
+        """ Test read_prefs_string() with a longer string. """
 
         pstring = 'XXXXXXCCCCCCCCCCCCPPCCCCCCCCCCCCCCCCCCCCCCXXXXXX'
         expected = 'Can work: 8:00 - 9:30\nCan work: 6:30 - 8:00'
 
+        print (scheduler.read_prefs_string(pstring))
         with patch('sys.stdout', new=StringIO()) as test_output:
             scheduler.read_prefs_string(pstring)
             assert test_output.getvalue().strip() == expected
 
-    def test_using_file(self):
-        """ Test get_day_prefs() from the test_prefs file. """
+    def test_read_prefs_string_using_file(self):
+        """ Test read_prefs_string() from the test_prefs file. """
 
         employees = scheduler.get_day_prefs("tests/test_prefs")
         
@@ -195,13 +216,43 @@ class TestPrefsStringReader(unittest.TestCase):
                     'Can work: 5:00 - 6:30\nCan work: 5:30 - 7:00\n' \
                     'Can work: 6:00 - 7:30\nCan work: 6:30 - 8:00'
 
+        print (scheduler.read_prefs_string(employees[0].prefs))
         with patch('sys.stdout', new=StringIO()) as test_output:
             scheduler.read_prefs_string(employees[0].prefs)
             assert test_output.getvalue().strip() == expected1
 
+        print (scheduler.read_prefs_string(employees[1].prefs))
         with patch('sys.stdout', new=StringIO()) as test_output:
             scheduler.read_prefs_string(employees[1].prefs)
             assert test_output.getvalue().strip() == expected2
+
+
+class TestCanWork(unittest.TestCase):
+    """ Tests for can_work(). """
+
+    def test_can_work_simple(self):
+        """ Test can_work() with a six-char string. """
+
+        pstring = 'XXXXXX'
+        assert scheduler.can_work(pstring, '8:00') == 1.5
+
+    def test_can_work_longer(self):
+        """ Test can_work() with a longer string. """
+
+        pstring = 'XXXXXXXX'
+        assert scheduler.can_work(pstring, '8:00') == 2
+
+    def test_can_work_cannot_work(self):
+        """ Test can_work() when someone can't work. """
+
+        pstring = 'XXXXDDCC'
+        assert scheduler.can_work(pstring, '8:00') == 0
+
+    def test_can_work_other_time(self):
+        """ Test can_work() with a time that's not 8:00. """
+
+        pstring = 'XXXXPPPPXXXXPPPPXXXXPPPPPPPP'
+        assert scheduler.can_work(pstring, '1:00') == 2
 
 
 class TestWhenAvailable(unittest.TestCase):

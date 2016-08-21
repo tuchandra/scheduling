@@ -153,13 +153,13 @@ def get_day_prefs(day):
     return empls
 
 
-def convert_time(time):
+def decimal_to_time(time):
     """ Takes HH.MM (24 hours) as decimal, converts to HH:MM (12 hours).
 
-    >>> convert_time(13.50)
+    >>> decimal_to_time(13.50)
     '1:30'
 
-    >>> convert_time(8.75)
+    >>> decimal_to_time(8.75)
     '8:45'
     """
 
@@ -176,6 +176,30 @@ def convert_time(time):
     return "{0}:{1}".format(hpart, mpart)
 
 
+def time_to_decimal(time):
+    """ Takes HH:MM and converts to decimal (24 hour format).
+
+    Times after 12:00 and before 8:00 are assumed to be PM.
+
+    >>> time_to_decimal('8:30')
+    8.5
+
+    >>> time_to_decimal('1:30')
+    13.5
+    """
+
+    time = time.split(":")
+    new_time = int(time[0])
+
+    # Times after 12:00 but before 8:00 are PM
+    if new_time < 8:
+        new_time += 12
+
+    new_time += int(time[1]) / 60
+
+    return new_time
+
+
 def read_prefs_string(pstring):
     """ Read an employee prefs string to print their availability.
 
@@ -190,6 +214,10 @@ def read_prefs_string(pstring):
     this can be changed if it is necessary to fill a longer shift.
     """
 
+    # Configure minimum shift length
+    MIN_SHIFT_LENGTH_HOURS = 1.5
+    num_chars = int(MIN_SHIFT_LENGTH_HOURS * 4)
+
     time = 8.00
 
     for i, char in enumerate(pstring):
@@ -201,21 +229,47 @@ def read_prefs_string(pstring):
         if i + 6 > len(pstring):
             break
 
+        time1 = decimal_to_time(time)
+        time2 = decimal_to_time(time + 1.5)
+
         # Check if they prefer this time
-        if pstring[i : i+6] == 'PPPPPP':
-            time1 = convert_time(time)
-            time2 = convert_time(time + 1.5)
+        if pstring[i : i+num_chars] == 'PPPPPP':
             print("Prefers to work: {0} - {1}".format(time1, time2))
 
         # Check that they can work this time (ignoring dislikes / cannot)
-        elif "D" not in pstring[i : i+6] and "C" not in pstring[i : i+6]:
-            time1 = convert_time(time)
-            time2 = convert_time(time + 1.5)
+        elif can_work(pstring, decimal_to_time(time)):
             print("Can work: {0} - {1}".format(time1, time2))
 
         time += 0.5
 
     return 
+
+
+def can_work(pstring, time):
+    """ Checks if employee can work at 'time'.
+
+    Returns how long they can work, in hours (or 0 if they cannot).
+    """
+
+    # Get time as a decimal; index obtained by remembering string starts at
+    # 8:00, with each char being 0.25 hours
+    time = time_to_decimal(time)
+    index = int((time - 8.00) * 4)
+
+    # Check if they cannot work; return 0 if so
+    if "C" in pstring[index : index+6] or "D" in pstring[index : index+6]:
+        return 0
+
+    # Otherwise, figure out how long they can work for; once a cannot / dislike
+    # is hit, terminate and return the difference in hours.
+    # Start the iteration through the prefs string at the relevant time, and
+    # for simplicity, also start the counter at the same index.
+    for ind, char in enumerate(pstring[index:], start=index):
+        if char == "C" or char == "D":
+            return (ind - index + 1) * 0.25
+
+    # If we exhaust the string, return difference in hours as well
+    return (ind - index + 1) * 0.25
 
 
 def when_employee_available(day, name):
