@@ -308,13 +308,3 @@ def who_can_work(day, time):
         if hours_available:
             time2 = decimal_to_time(time_to_decimal(time) + hours_available)
             print("{0}, from {1} until {2}".format(empl.name, time, time2))
-
-
-
-def count_available_hours(day, name):
-    """ Prints number of hours employee 'name' is available on 'day'.
-
-    ...
-    """
-
-    ...
