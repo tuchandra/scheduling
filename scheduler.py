@@ -23,10 +23,10 @@ Usage:
     scheduler.py --name=<name>
 
 Options:
-    -h, --help      Show this message
-    --day=<day>     Get availabilities for day
-    --time=<time>   Get availabilities for a time (requires day)
-    --name=<name>   Get availabilities for employee 'name'
+    --help, -h              Show this message
+    --day, -d <day>         Get availabilities for day
+    --time, -t <time>       Get availabilities for a time (requires day)
+    --name, -n <name>       Get availabilities for employee 'name'
 
 Detailed explanation of options:
     Runing the script without any options will only display the help message.
