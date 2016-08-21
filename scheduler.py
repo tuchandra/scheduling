@@ -231,7 +231,12 @@ def when_employee_available(day, name):
 def all_available(day):
     """ Prints availability of all employees on 'day'. """
 
-    ...
+    employees = get_day_prefs(day)
+
+    for empl in employees:
+        print(empl.name)
+        read_prefs_string(empl.prefs)
+        print()
 
 
 def who_can_work(day, time):

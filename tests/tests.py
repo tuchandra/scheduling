@@ -205,9 +205,9 @@ class TestPrefsStringReader(unittest.TestCase):
 
 
 class TestWhenAvailable(unittest.TestCase):
-    """ Test when_employee_available() """
+    """ Test when_employee_available() and all_available() """
 
-    def test_when_available_one(self):
+    def test_when_employee_available_one(self):
         """ Test when_employee_available() on first empl in test_prefs. """
 
         expected1 = 'Some Employee\n' \
@@ -219,7 +219,7 @@ class TestWhenAvailable(unittest.TestCase):
             scheduler.when_employee_available('tests/test_prefs', 'Some Employee')
             assert test_output.getvalue().strip() == expected1
 
-    def test_when_available_two(self):
+    def test_when_employee_available_two(self):
         """ Test when_employee_available() on second empl in test_prefs. """
 
         expected2 = 'Test Student\n' \
@@ -233,3 +233,22 @@ class TestWhenAvailable(unittest.TestCase):
         with patch('sys.stdout', new=StringIO()) as test_output:
             scheduler.when_employee_available('tests/test_prefs', 'Test Student')
             assert test_output.getvalue().strip() == expected2
+
+    def test_all_available(self):
+        """ Test all_available() on the test prefs. """
+
+        expected = 'Some Employee\n' \
+                   'Can work: 8:00 - 9:30\nCan work: 8:30 - 10:00\n' \
+                   'Can work: 9:00 - 10:30\nCan work: 9:30 - 11:00\n' \
+                   'Prefers to work: 1:00 - 2:30\nCan work: 6:30 - 8:00\n\n' \
+                   'Test Student\n' \
+                   'Can work: 8:00 - 9:30\nCan work: 1:30 - 3:00\n' \
+                   'Prefers to work: 2:00 - 3:30\nPrefers to work: 2:30 - 4:00\n' \
+                   'Prefers to work: 3:00 - 4:30\nPrefers to work: 3:30 - 5:00\n' \
+                   'Prefers to work: 4:00 - 5:30\nPrefers to work: 4:30 - 6:00\n' \
+                   'Can work: 5:00 - 6:30\nCan work: 5:30 - 7:00\n' \
+                   'Can work: 6:00 - 7:30\nCan work: 6:30 - 8:00'
+
+        with patch('sys.stdout', new=StringIO()) as test_output:
+            scheduler.all_available('tests/test_prefs')
+            assert test_output.getvalue().strip() == expected
