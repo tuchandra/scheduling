@@ -1,6 +1,4 @@
-from collections import namedtuple
-
-""" Scheduling tool for Northwestern IT.
+"""Scheduling tool for Northwestern IT.
 
 Follow the instructions in README.md to make sure that the prefs files are
 properly configured. This assumes they are located in prefs/ and named
@@ -16,13 +14,49 @@ Definitions:
                   starting at 8am and continuing until 8pm. The four characters
                   represent the availability (X = no preference, P = prefers
                   to work, D = dislikes working, C = cannot work)
+
+Usage:
+    scheduler.py -h | --help
+    scheduler.py --day=<day>
+    scheduler.py --day=<day> --time=<time>
+    scheduler.py --day=<day> --name=<name>
+    scheduler.py --name=<name>
+
+Options:
+    -h, --help      Show this message
+    --day=<day>     Get availabilities for day
+    --time=<time>   Get availabilities for a time (requires day)
+    --name=<name>   Get availabilities for employee 'name'
+
+Detailed explanation of options:
+    Runing the script without any options will only display the help message.
+    More specification is needed for the script to be useful.
+
+    Running the script with a --day option will let you see all of the
+    availabilities for that day. This option requires a valid, correctly
+    spelled day of the week (case insensitive).
+
+    In conjunction with the --day option, one can use a --time option to see
+    the availabilities at a certain time that day. The time should be in the
+    format HH:MM, using 12-hour format (the schedule occurs between the hours
+    of 8am and 8pm, so there is no ambiguity in the hours).
+
+    An alternative to the --time option is the --name option, which lets one
+    see all of a particular person's availability on that day. The --name
+    option can also be used alone, displaying their ability for the entire
+    week.
+
+    These four usage patterns are listed above in "Usage."
 """
+
+from collections import namedtuple
+from docopt import docopt
 
 
 def read_prefs_file(day):
     """ Reads the prefs file for 'day' and returns the line-by-line text. """
 
-    fname = day + ".txt"
+    fname = "prefs/" + day + ".txt"
     with open(fname) as f:
         return f.read().splitlines()
 
@@ -131,28 +165,6 @@ def prefs_line_to_string(line):
     return prefs_string
 
 
-def get_day_prefs(day):
-    """ Get all of the employees' prefs for a 'day'.
-
-    Given a day of the week, this function reads the prefs file for that day,
-    parses it into employees and prefs, and converts each set of prefs to a
-    prefs string.
-    """
-
-    # See tests/test_prefs.txt for structure of the prefs file
-    # Get file; first three lines are garbage; last three lines are garbage
-    lines = read_prefs_file(day)[3:-4]
-    empls = combine_lines(lines)
-
-    # Replace each entry in empls with a new namedtuple; we can't modify the
-    # tuples directly.
-    Employee = namedtuple("Employee", ["name", "prefs"])
-    for i, empl in enumerate(empls):
-        empls[i] = Employee(empl.name, prefs_line_to_string(empl.prefs))
-
-    return empls
-
-
 def decimal_to_time(time):
     """ Takes HH.MM (24 hours) as decimal, converts to HH:MM (12 hours).
 
@@ -198,6 +210,28 @@ def time_to_decimal(time):
     new_time += int(time[1]) / 60
 
     return new_time
+
+
+def get_day_prefs(day):
+    """ Get all of the employees' prefs for a 'day'.
+
+    Given a day of the week, this function reads the prefs file for that day,
+    parses it into employees and prefs, and converts each set of prefs to a
+    prefs string.
+    """
+
+    # See tests/test_prefs.txt for structure of the prefs file
+    # Get file; first three lines are garbage; last three lines are garbage
+    lines = read_prefs_file(day)[3:-4]
+    empls = combine_lines(lines)
+
+    # Replace each entry in empls with a new namedtuple; we can't modify the
+    # tuples directly.
+    Employee = namedtuple("Employee", ["name", "prefs"])
+    for i, empl in enumerate(empls):
+        empls[i] = Employee(empl.name, prefs_line_to_string(empl.prefs))
+
+    return empls
 
 
 def read_prefs_string(pstring):
@@ -281,7 +315,6 @@ def when_employee_available(day, name):
 
     for empl in employees:
         if empl.name == name:
-            print(name)
             read_prefs_string(empl.prefs)
 
 
@@ -308,3 +341,37 @@ def who_can_work(day, time):
         if hours_available:
             time2 = decimal_to_time(time_to_decimal(time) + hours_available)
             print("{0}, from {1} until {2}".format(empl.name, time, time2))
+
+
+if __name__ == "__main__":
+    args = docopt(__doc__)
+
+    day, time, name = args["--day"].lower(), args["--time"], args["--name"]
+    helpflag = args["--help"]
+
+    valid_days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']
+
+    # If they ask for help, or don't specify other options, display docs
+    if helpflag or (not day and not time and not name):
+        print(__doc__)
+
+    if day in valid_days:
+        # If they specify day and name, find name's availability that day
+        if name:
+            when_employee_available(day, name)
+
+        # If they specify day and time, find all availability at that time
+        elif time:
+            who_can_work(day, time)
+
+        # Otherwise, find all availability on that day
+        else:
+            all_available(day)
+
+    # If they just specify a name, print that person's availability all week.
+    if name and not day:
+        print(name)
+        for day in valid_days:
+            print(day.title())
+            when_employee_available(day, name)
+            print()
