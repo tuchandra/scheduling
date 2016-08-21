@@ -13,7 +13,7 @@ Definitions:
            (green, pink, red, white) denoting their availability.
     prefs string: A string representation of an employee's prefs. Each
                   character in the string represents one 15-minute interval,
-                  starting at 7am and continuing until 8pm. The four characters
+                  starting at 8am and continuing until 8pm. The four characters
                   represent the availability (X = no preference, P = prefers
                   to work, D = dislikes working, C = cannot work)
 """
@@ -201,11 +201,13 @@ def read_prefs_string(pstring):
         if i + 6 > len(pstring):
             break
 
+        # Check if they prefer this time
         if pstring[i : i+6] == 'PPPPPP':
             time1 = convert_time(time)
             time2 = convert_time(time + 1.5)
             print("Prefers to work: {0} - {1}".format(time1, time2))
 
+        # Check that they can work this time (ignoring dislikes / cannot)
         elif "D" not in pstring[i : i+6] and "C" not in pstring[i : i+6]:
             time1 = convert_time(time)
             time2 = convert_time(time + 1.5)
@@ -240,7 +242,7 @@ def all_available(day):
 
 
 def who_can_work(day, time):
-    """ Prints employees who can work on 'day' at 'time' for > 1.5 hours.
+    """ Prints those who can work on 'day' at 'time', and how long they can.
 
     ...
     """
