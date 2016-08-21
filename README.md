@@ -29,3 +29,13 @@ Be sure that the position says `Consultant` at the top, and make sure that you h
 Paste the body of text into a directory `prefs`, and name it `monday.txt`. Repeat for the other days of the week.
 
 ### Parsing the preferences
+The script does all of the work of parsing that mess above into a useful, human-readable form. There are several options available for running the script, depending on what one's needs are. These are detailed at the top of the script as usage instructions, and can also be seen by running `scheduler.py --help`. 
+
+Options exist to:
+* view availability on a particular day, by time (e.g., see, for each time on Monday, who can work a shift starting at that time) -- `scheduler.py --day <day>`
+* view availability on a particular day, by employee (e.g., see the times that each employee is available on Monday) -- `scheduler.py --day <day> --byempl`
+* view availability for a particular employee on a particular day (e.g., see when someone can work on Monday) -- `scheduler.py --day <day> --name <name>`
+* view availability for a particular time on a particular day (e.g., see who can work Monday at 9:00 am) -- `scheduler.py --day <day> --time <time>`
+* view availability for a particular employee on every day (e.g., see when someone can work all week)  -- `scheduler.py --name <name>`
+
+This allows schedulers to go from a high-level view, answering questions like "When on Monday is going to be the tightest to schedule?", to a low-level view, giving information about specific times or people, with ease.
