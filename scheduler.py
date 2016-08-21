@@ -266,9 +266,11 @@ def can_work(pstring, time):
     # for simplicity, also start the counter at the same index.
     for ind, char in enumerate(pstring[index:], start=index):
         if char == "C" or char == "D":
-            return (ind - index + 1) * 0.25
+            return (ind - index) * 0.25
 
-    # If we exhaust the string, return difference in hours as well
+    # If we exhaust the string, return difference in hours as well; the +1 is
+    # to account for the extra iteration that we would get if we weren't at the
+    # end of the string.
     return (ind - index + 1) * 0.25
 
 
@@ -281,7 +283,6 @@ def when_employee_available(day, name):
         if empl.name == name:
             print(name)
             read_prefs_string(empl.prefs)
-            print()
 
 
 def all_available(day):
@@ -296,12 +297,18 @@ def all_available(day):
 
 
 def who_can_work(day, time):
-    """ Prints those who can work on 'day' at 'time', and how long they can.
+    """ Prints those who can work, and for how long, on 'day' at 'time'. """
 
-    ...
-    """
+    employees = get_day_prefs(day)
 
-    ...
+    for empl in employees:
+        hours_available = can_work(empl.prefs, time)
+
+        # hours_available is either 0 or an amount of time they can work
+        if hours_available:
+            time2 = decimal_to_time(time_to_decimal(time) + hours_available)
+            print("{0}, from {1} until {2}".format(empl.name, time, time2))
+
 
 
 def count_available_hours(day, name):

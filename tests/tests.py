@@ -248,6 +248,12 @@ class TestCanWork(unittest.TestCase):
         pstring = 'XXXXDDCC'
         assert scheduler.can_work(pstring, '8:00') == 0
 
+    def test_can_work_not_end(self):
+        """ Test can_work() on an interval that doesn't reach the end. """
+
+        pstring = 'XXXXPPDD'
+        assert scheduler.can_work(pstring, '8:00') == 1.5
+
     def test_can_work_other_time(self):
         """ Test can_work() with a time that's not 8:00. """
 
@@ -303,3 +309,12 @@ class TestWhenAvailable(unittest.TestCase):
         with patch('sys.stdout', new=StringIO()) as test_output:
             scheduler.all_available('tests/test_prefs')
             assert test_output.getvalue().strip() == expected
+
+    def test_who_can_work(self):
+        """ Test who_can_work() on the test prefs. """
+        expected = 'Some Employee, from 8:00 until 11:00\n' \
+                   'Test Student, from 8:00 until 9:30'
+
+        with patch('sys.stdout', new=StringIO()) as test_output:
+            scheduler.who_can_work('tests/test_prefs', '8:00')
+            assert test_output.getvalue().strip() == expected        
