@@ -17,15 +17,17 @@ Definitions:
 
 Usage:
     scheduler.py -h | --help
-    scheduler.py --day=<day>
-    scheduler.py --day=<day> --time=<time>
-    scheduler.py --day=<day> --name=<name>
-    scheduler.py --name=<name>
+    scheduler.py --day <day>
+    scheduler.py --day <day> --byempl
+    scheduler.py --day <day> --time <time>
+    scheduler.py --day <day> --name <name>
+    scheduler.py --name <name>
 
 Options:
     --help, -h              Show this message
-    --day, -d <day>         Get availabilities for day
-    --time, -t <time>       Get availabilities for a time (requires day)
+    --day, -d <day>         Get availabilities for day, by time
+    --byempl, -e            Get availabilities by empl (requires --day)
+    --time, -t <time>       Get availabilities for a time (requires --day)
     --name, -n <name>       Get availabilities for employee 'name'
 
 Detailed explanation of options:
@@ -33,8 +35,10 @@ Detailed explanation of options:
     More specification is needed for the script to be useful.
 
     Running the script with a --day option will let you see all of the
-    availabilities for that day. This option requires a valid, correctly
-    spelled day of the week (case insensitive).
+    availabilities for that day, by time.. This option requires a valid,
+    correctly spelled day of the week (case insensitive). If one wishes to
+    see the availability by employee on that day, this can be run with both
+    --day and --byempl.
 
     In conjunction with the --day option, one can use a --time option to see
     the availabilities at a certain time that day. The time should be in the
@@ -318,7 +322,7 @@ def when_employee_available(day, name):
             read_prefs_string(empl.prefs)
 
 
-def all_available(day):
+def day_available_by_empl(day):
     """ Prints availability of all employees on 'day'. """
 
     employees = get_day_prefs(day)
@@ -327,6 +331,29 @@ def all_available(day):
         print(empl.name)
         read_prefs_string(empl.prefs)
         print()
+
+
+def day_available_by_time(day):
+    """ Prints availability at all times on 'day'. """
+
+    employees = get_day_prefs(day)
+    times = ["8:00", "8:30", "9:00", "9:30", "10:00", "10:30", "11:00", 
+             "11:30", "12:00", "1:00", "1:30", "2:00", "2:30", "3:00",
+             "3:30", "4:00", "4:30", "5:00", "5:30", "6:00", "6:30"]
+
+    for time in times:
+        print("Shifts starting at {0}".format(time))
+        count = 0
+
+        for empl in employees:
+            hours_av = can_work(empl.prefs, time)
+
+            if hours_av:
+                end_time = decimal_to_time(time_to_decimal(time) + hours_av)
+                print("{0}, until {1}".format(empl.name, end_time))
+                count += 1
+
+        print("{0} employees available\n".format(count))
 
 
 def who_can_work(day, time):
@@ -346,8 +373,12 @@ def who_can_work(day, time):
 if __name__ == "__main__":
     args = docopt(__doc__)
 
-    day, time, name = args["--day"].lower(), args["--time"], args["--name"]
-    helpflag = args["--help"]
+    day, time, name = args["--day"], args["--time"], args["--name"]
+    byemplflag, helpflag = args["--byempl"], args["--help"]
+
+    # Convert day to lowercase
+    if day:
+        day = day.lower()
 
     valid_days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']
 
@@ -364,9 +395,13 @@ if __name__ == "__main__":
         elif time:
             who_can_work(day, time)
 
-        # Otherwise, find all availability on that day
+        # If they specify availability by empl, do that
+        elif byemplflag:
+            day_available_by_empl(day)
+
+        # Otherwise, find all available on that day by time
         else:
-            all_available(day)
+            day_available_by_time(day)
 
     # If they just specify a name, print that person's availability all week.
     if name and not day:
