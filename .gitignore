@@ -1,5 +1,9 @@
-# Folder of employee prefs
-prefs/
+# Employee prefs
+prefs/monday.txt
+prefs/tuesday.txt
+prefs/wednesday.txt
+prefs/thursday.txt
+prefs/friday.txt
 
 # Employees to ignore
 ignore.py
