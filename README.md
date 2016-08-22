@@ -2,6 +2,7 @@
 Tools to help build a schedule for student employees at Northwestern IT.
 
 ## Introduction
+This project was made to help myself and future schedulers at Northwestern IT build a schedule for all of the student employees there. Doing so requires considering the classes and preferences of over 50 students, the needs of the workplace, and the dynamics of different staff combinations. Looking at a blank schedule can be extremely overwhelming, and it can be difficult to know where to start. This project aims to help with that.
 
 ## Getting Started (for future schedulers)
 ### Pulling data from WhenToWork
