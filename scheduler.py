@@ -21,6 +21,7 @@ Usage:
     scheduler.py --day <day> --byempl
     scheduler.py --day <day> --time <time>
     scheduler.py --day <day> --name <name>
+    scheduler.py --count (--day <day>)
     scheduler.py --name <name>
 
 Options:
@@ -29,6 +30,7 @@ Options:
     --byempl, -e            Get availabilities by empl (requires --day)
     --time, -t <time>       Get availabilities for a time (requires --day)
     --name, -n <name>       Get availabilities for employee 'name'
+    --count, -c             Count hours each empl is available (--day optional)
 
 Detailed explanation of options:
     Runing the script without any options will only display the help message.
@@ -50,7 +52,12 @@ Detailed explanation of options:
     option can also be used alone, displaying their ability for the entire
     week.
 
-    These four usage patterns are listed above in "Usage."
+    Finally, it is often useful to count the hours each employee is available.
+    This can be done with the --count flag; the --day option may optionally
+    be used as well, to restrict counting to a particular day. By default,
+    the hours are counted for every day.
+
+    These usage patterns are listed above in "Usage."
 
 Configuring employees to ignore:
     If there are employees you do not wish to include in the output of this
@@ -299,7 +306,7 @@ def read_prefs_string(pstring):
 
         time += 0.5
 
-    return 
+    return
 
 
 def can_work(pstring, time):
@@ -389,11 +396,33 @@ def who_can_work(day, time):
             print("{0}, from {1} until {2}".format(empl.name, time, time2))
 
 
+def hours_by_empl(day=None):
+    """ Prints hours each employee can work on 'day' (default all days) """
+
+    # Default: calculate for all days. Otherwise, just do the one
+    if day is None:
+        days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']
+    else:
+        days = [day]
+
+    for day in days:
+        print(day.title())
+        employees = get_day_prefs(day)
+
+        for empl in employees:
+            chars = empl.prefs.count("P") + empl.prefs.count("X")
+            hours = chars / 4
+            print("{0}: {1} hours".format(empl.name, str(hours)))
+
+    return
+
+
 if __name__ == "__main__":
     args = docopt(__doc__)
 
     day, time, name = args["--day"], args["--time"], args["--name"]
     byemplflag, helpflag = args["--byempl"], args["--help"]
+    countflag = args["--count"]
 
     # Convert day to lowercase
     if day:
@@ -405,7 +434,16 @@ if __name__ == "__main__":
     if helpflag or (not day and not time and not name):
         print(__doc__)
 
-    if day in valid_days:
+    if countflag:
+        # If they specify a day and the count flag, count hours for that day
+        if day in valid_days:
+            hours_by_empl(day)
+
+        # Otherwise, count hours for every day
+        else:
+            hours_by_empl()
+
+    elif day in valid_days:
         # If they specify day and name, find name's availability that day
         if name:
             when_employee_available(day, name)

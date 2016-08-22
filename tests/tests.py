@@ -315,4 +315,17 @@ class TestWhenAvailable(unittest.TestCase):
 
         with patch('sys.stdout', new=StringIO()) as test_output:
             scheduler.who_can_work('test_prefs', '8:00')
-            assert test_output.getvalue().strip() == expected        
+            assert test_output.getvalue().strip() == expected
+
+
+class TestHours(unittest.TestCase):
+    """ Test hours_by_empl(). """
+
+    def test_hours_by_empl(self):
+        """ Test hours_by_empl() with the test prefs. """
+        expected = 'Test_Prefs\nSome Employee: 6.0 hours\n' \
+                   'Test Student: 8.0 hours'
+
+        with patch('sys.stdout', new=StringIO()) as test_output:
+            scheduler.hours_by_empl('test_prefs')
+            assert test_output.getvalue().strip() == expected
